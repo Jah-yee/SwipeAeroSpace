@@ -427,18 +427,23 @@ class SwipeManager {
     }
 
     func nextWorkspace() {
-        switch switchWorkspace(direction: .next) {
-        case .success: return
-        case .failure(let err): logger.error("\(err.localizedDescription)")
+        workQueue.async { [weak self] in
+            guard let self = self else { return }
+            switch self.switchWorkspace(direction: .next) {
+            case .success: return
+            case .failure(let err): self.logger.error("\(err.localizedDescription)")
+            }
         }
     }
 
     func prevWorkspace() {
-        switch switchWorkspace(direction: .prev) {
-        case .success: return
-        case .failure(let err): logger.error("\(err.localizedDescription)")
+        workQueue.async { [weak self] in
+            guard let self = self else { return }
+            switch self.switchWorkspace(direction: .prev) {
+            case .success: return
+            case .failure(let err): self.logger.error("\(err.localizedDescription)")
+            }
         }
-
     }
 
     private func getAeroSpaceProtocolVersion() -> Int {
