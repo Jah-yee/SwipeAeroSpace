@@ -615,15 +615,22 @@ class SwipeManager {
         if touches.isEmpty {
             return
         }
+
+        // AppKit marks incidental contacts, such as a thumb or palm resting on
+        // the trackpad, as resting touches. Exclude them from both the finger
+        // count and movement calculation while the system classifies them as
+        // resting.
+        let gestureTouches = Set(touches.filter { !$0.isResting })
+
         // Count only active touches. macOS includes `.ended` (and sometimes
         // `.stationary`) touches in the same event frame as moving fingers,
         // which can briefly inflate the count and falsely latch the gesture
         // (e.g. a 3-finger drag-to-select reporting count == 4 for one frame).
-        let touchesCount = touches.filter { $0.phase != .ended }.count
+        let touchesCount = gestureTouches.filter { $0.phase != .ended }.count
         if touchesCount == 0 {
             stopGesture()
         } else {
-            processTouches(touches: touches, count: touchesCount)
+            processTouches(touches: gestureTouches, count: touchesCount)
         }
     }
 
